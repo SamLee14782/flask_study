@@ -14,6 +14,7 @@ cryptography @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/a
 distlib==0.3.7
 filelock==3.12.4
 Flask==2.3.3
+Flask-WTF==1.1.1
 idna @ file:///Users/cbousseau/work/recipes/ci_py311/idna_1677906072337/work
 itsdangerous==2.1.2
 Jinja2==3.1.2
@@ -44,4 +45,5 @@ virtualenv==20.24.5
 virtualenv-clone==0.5.7
 virtualenvwrapper==4.8.4
 Werkzeug==2.3.7
+WTForms==3.0.1
 zstandard @ file:///Users/cbousseau/work/recipes/ci_py311_2/zstandard_1678996192313/work

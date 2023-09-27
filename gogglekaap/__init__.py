@@ -1,82 +1,70 @@
 from flask import Flask
+from flask import render_template
+from flask_wtf.csrf import CSRFProtect
 
-db = 'database'
-bd = 'batadase'
+csrf = CSRFProtect()
 
 def create_app():
     print('run: create_app()')
     app = Flask(__name__)
 
+    app.config['SECRET_KEY'] = 'secretkey '
+
+    '''CSRF INIT'''
+    csrf.init_app(app)
+
+    if app.config['DEBUG']:
+        app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 1
+
     @app.route('/')
     def index():
-        app.logger.info('RUN')
-        return 'hello world!!'
+        return render_template('index.html')
     
-    '''Routing Practice'''
-    from flask import jsonify, redirect, url_for
-    from markupsafe import escape
+    from gogglekaap.forms.auth_form import LoginForm, RegisterForm
+    @app.route('/auth/login', methods=['GET', 'POST'])
+    def login():
+        form = LoginForm()
+        # POST, validate OK!
+        if form.validate_on_submit():
+            # TODO
+            # 1) 유저조회
+            # 2) 유저 이미 존재하는지 체크
+            # 3) 패스워 확인
+            # 4) 로그인 유지(세션)
+            user_id = form.data.get('user_id')
+            password = form.data.get('password')
+            return f'{user_id}, {password}'
+        else:
+            # TODO: ERROR
+            pass
+        return render_template('login.html', form=form)
+    
+    @app.route('/auth/register', methods=['GET', 'POST'])
+    def register():
+        form = RegisterForm()
+        # POST, validate OK!
+        if form.validate_on_submit():
+            # TODO
+            # 1) 유저조회
+            # 2) 유저 이미 존재하는지 체크
+            # 3) 없으면 유저 생성
+            # 4) 로그인 유지(세션)
+            user_id = form.data.get('user_id')
+            user_name = form.data.get('user_name')
+            password = form.data.get('password')
+            repassword = form.data.get('repassword')
+            return f'{user_id}, {user_name}, {password}, {repassword}'
+        else:
+            # TODO: ERROR
+            pass
+        return render_template('register.html', form=form)
+    
+    @app.route('/auth/logout')
+    def logout():
+        return 'logout'
 
-    @app.route('/test/name/<name>')
-    def name(name):
-        return f'Name is {name}, {escape(type(name))}'
-    
-    @app.route('/test/id/<int:id>')
-    def id(id):
-        return 'Id: %d' % id
-    
-    @app.route('/test/path/<path:subpath>')
-    def path(subpath):
-        return subpath
-    
-    @app.route('/test/json')
-    def json():
-        return jsonify({'hello': 'world'})
-    
-    @app.route('/test/redirect/<path:subpath>')
-    def redirect_url(subpath):
-        return redirect(subpath)
-    
-    @app.route('/test/urlfor/<path:subpath>')
-    def urlfor(subpath):
-        return redirect(url_for('redirect_url', subpath=subpath))
-    
-    '''Request Hook'''
-    from flask import g, current_app
-    '''@app.before_first_request
-    def before_first_request():
-        app.logger.info('BEFORE_FIRST_REQUEST')'''
-
-    @app.before_request
-    def before_request():
-        g.test=True
-        app.logger.info('BEFORE_REQUEST')
-
-    @app.after_request
-    def after_request(response):
-        app.logger.info(f'g.test:{g.test}')
-        app.logger.info(f'current_app.config:{current_app.config}')
-        app.logger.info('AFTER_REQUEST')
-        return response
-    
-    @app.teardown_request
-    def teardown_request(execption):
-        app.logger.info('TEARDOWN_REQUEST')
-
-    @app.teardown_appcontext
-    def teardown_appcontext(execption):
-        app.logger.info('TEARDOWN_CONTEXT')
-
-    '''Method'''
-    from flask import request
-    import json
-
-    @app.route('/test/method/<id>', methods=['GET', 'POST', 'DELETE', 'PUT'])
-    def method_test(id):
-        return jsonify({
-            'request.method': request.method,
-            'request.args': request.args,
-            'request.form': request.form,
-            'request.json': request.json
-        })
+    @app.errorhandler(404)
+    def page_404(error):
+        return render_template('404.html'), 404
     
     return app
